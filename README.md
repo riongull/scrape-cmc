@@ -9,6 +9,7 @@ This tool scrapes coinmarketcap.com's historical (weekly) data
 5. open `http://localhost:3000/` in a web browser (reload to get data)
 
 ### Notes
+This scraper isn't really meant for public consumption; this is just a side project and there are bugs.
 
 ##### Javascript scraping libraries
 * https://github.com/fallanic/cheers
@@ -16,11 +17,11 @@ This tool scrapes coinmarketcap.com's historical (weekly) data
 * https://github.com/ruipgil/scraperjs
 * https://github.com/nemo/scrape
 
-###### Javascript parsing tools
+##### Javascript parsing tools
 * http://papaparse.com/demo
 
 ##### Python scraping libraries (for reference) 
 * https://github.com/scrapy/scrapy
 
-###### Tutorial
+##### Tutorial
 * https://scotch.io/tutorials/scraping-the-web-with-node-js
