@@ -1,0 +1,19 @@
+{
+  "name": "scrape-cmc",
+  "version": "1.0.0",
+  "description": "This tool scrapes coinmarketcap.com's historical (weekly) data",
+  "main": "index.js",
+  "repository": "https://github.com/riongull/scrape-cmc.git",
+  "author": "Rion Gull <riongull@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "cheerio": "^0.22.0",
+    "cheers": "^0.5.0",
+    "express": "^4.15.2",
+    "json2csv": "^3.7.3",
+    "request": "^2.81.0"
+  },
+  "devDependencies": {
+    "nodemon": "^1.11.0"
+  }
+}
