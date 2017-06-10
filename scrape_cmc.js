@@ -5,6 +5,8 @@ var cheerio = require('cheerio');
 var cheers = require('cheers');
 var json2csv = require('json2csv');
 
+var Baby = require('babyparse');
+
 
 // scrape history page for each available weekly data link
 var url = 'https://coinmarketcap.com/historical/';
@@ -106,10 +108,13 @@ app.get('/', function(req, res) {
         console.log('JSON data', JSON.stringify(cmcData[Object.keys(cmcData)[0]],null,2));
 
         // write out to csv file
-        var csv = json2csv({ 
-            fields: Object.keys(config.scrape),
-            data: JSON.stringify(cmcData[Object.keys(cmcData)[0]])
-        });
+        // var csv = json2csv({ 
+        //     fields: Object.keys(config.scrape),
+        //     data: JSON.stringify(cmcData[Object.keys(cmcData)[0]])
+        // });
+
+        // json2csv not working, use babyparse instead
+        csv = Baby.unparse(JSON.stringify(cmcData[Object.keys(cmcData)[0]]));
 
         fs.writeFile('scrape_cmc.csv', csv, function(err) {
             if (err) throw err;
