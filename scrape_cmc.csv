@@ -1,0 +1,8 @@
+currency,symbol,marketcap,price_usd,supply,volume,change_1hr,change_1day,change_1week
+Bitcoin,BTC,"$ 1,503,882,196",$ 135.58,"11,092,162",Low Vol,0.32 %,?,?
+Litecoin,LTC,"$ 74,426,609",$ 4.33,"17,170,739",Low Vol,0.12 %,?,?
+Peercoin,PPC,"$ 7,311,640",$ 0.389696,"18,762,419",Low Vol,0.08 %,?,?
+Namecoin,NMC,"$ 6,414,724",$ 1.18,"5,417,308",Low Vol,1.37 %,?,?
+Terracoin,TRC,"$ 1,522,275",$ 0.654561,"2,325,642",Low Vol,0.53 %,?,?
+Devcoin,DVC,"$ 1,460,589",$ 0.000334,"4,367,702,656",Low Vol,0.56 %,?,?
+Novacoin,NVC,"$ 1,152,424",$ 4.21,"273,797",Low Vol,0.33 %,?,?
