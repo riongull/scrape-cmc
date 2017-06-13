@@ -2,7 +2,7 @@ let fs = require('fs');
 let axios = require('axios');
 let cheerio = require('cheerio');
 let cheers = require('cheers');
-let Baby = require('babyparse');
+let json2csv = require('json2csv');
 
 const getHistoryLinks = (url) => {  
     return axios(url).then((response) => {
@@ -26,8 +26,8 @@ const getHistoryLinks = (url) => {
 
 const getData = (historyLinks) => {
 
-    historyLinks = historyLinks.slice(0,2);  // trim load for testing
-    console.log('historyLinks:', historyLinks);
+    // historyLinks = historyLinks.slice(0,2);  // trim load for testing
+    console.log('historyLinks:\n', historyLinks);
     
     let config = {
         url: historyLinks,
@@ -93,60 +93,36 @@ const getData = (historyLinks) => {
     }).catch((error) => console.error(error));
 };
 
-const outputData = (cmcData) => {
-    console.log(cmcData);
+const formatData = (cmcData) => {
+    data = [];
 
-    // let JSONData = JSON.stringify(cmcData, null, 2);
-    // console.log('JSONData', JSONData);
+    Object.keys(cmcData).forEach(date => {
+        cmcData[date].forEach(stats => {
+            stats.date = date;
+            data.push(stats);
+        })
+    })
 
-    const headers = Object.keys(cmcData[Object.keys(cmcData)[0]][0]);
-    console.log('headers:', headers);
-
-    const getCsvLine = (currency = 'Litecoin', day = '20130505') => {
-        return cmcData[day].find((coin) => coin.currency === currency)
-    };
-
-    csvData = [];
-    
-    Object.keys(cmcData).forEach(day => {    
-        // JSONcsvLine = getCsvLine();
-        csvData.push(getCsvLine('Litecoin', day)[headers[4]]);
-    });
-
-    console.log(csvData)
-
-    
-    // let dataString = '';
-    // reducedData = Object.keys(cmcData).reduce((acc, date, i) => {
-    //     console.log('i:', i);
-    //     console.log('acc:', acc);
-    //     console.log('date:', date);
-    //     console.log('price:', cmcData[Object.keys(cmcData)[i]].find((coin) => coin.currency === 'Litecoin'));
-    //     // line = date + Baby.unparse(JSON.stringify(cmcData[Object.keys(cmcData)[i]]))
-    //     // return acc.concat(dailyData,'\n');
-    //     return acc.concat(date,',');
-    //     // console.log(cmcData[Object.keys(cmcData)[i]].find((coin) => coin.currency === 'Litecoin'));
-    // },'');
-
-    // console.log(reducedData);
-
-    let csv = Baby.unparse(JSON.stringify(cmcData[Object.keys(cmcData)[0]]));
-    // let csv = Baby.unparse(JSON.stringify(JSONData[Object.keys(JSONData)[0]])); 
-
-    // fs.writeFile('scrape_cmc.csv', csv, (err) => {
-    //     if (err) throw err;
-    //     console.log('file saved');
-    // });
-
+    let fields = ['date'].concat(Object.keys(cmcData[Object.keys(cmcData)[0]][0])).slice(0,-1);
+    let csv = json2csv({ data, fields });
     return csv;
+}
+
+const outputData = (csv) => {
+    console.log('csv:\n', csv);
+
+    fs.writeFile('scrape_cmc.csv', csv, (err) => {
+        if (err) throw err;
+        console.log('file saved');
+    });
 };
 
 const scrapeSite = async (url) => {
     try {
         const historyLinks = await getHistoryLinks(url);
         const cmcData = await getData(historyLinks);
-        const csv = outputData(cmcData); 
-        // console.log('csv:\n', csv);
+        const csv = formatData(cmcData);
+        outputData(csv); 
     } catch (error) {
         console.log(error);
     }

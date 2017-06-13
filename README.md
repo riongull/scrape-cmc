@@ -5,22 +5,23 @@ This tool scrapes coinmarketcap.com's historical (weekly) data
 1. `git clone https://github.com/riongull/scrape-cmc.git`
 2. `cd scrape-cmc`
 3. `yarn install` or `npm install`
-4. `nodemon scrape_cmc.js`
+4. `node scrape_cmc.js` (use node v8 or above)
 
 ### Notes
-This scraper isn't really meant for public consumption; this is just a side project and there are bugs.
+* This scraper works but probably still has some bugs
+* Test by uncommenting `historyLinks = historyLinks.slice(0,2)` in `scrape_cmc.js`
+* Full scraping takes several minutes (I haven't coded a progress bar in, be patient)
 
-##### Javascript scraping libraries
+##### Scraping libraries
 * https://github.com/fallanic/cheers
 * https://github.com/rchipka/node-osmosis
 * https://github.com/ruipgil/scraperjs
 * https://github.com/nemo/scrape
+* https://github.com/scrapy/scrapy (python, for reference)
 
-##### Javascript parsing tools
+##### Parsing tools
+* https://www.npmjs.com/package/json2csv
 * http://papaparse.com/demo
-
-##### Python scraping libraries (for reference) 
-* https://github.com/scrapy/scrapy
 
 ##### Tutorial
 * https://scotch.io/tutorials/scraping-the-web-with-node-js

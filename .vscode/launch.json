@@ -5,17 +5,20 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Launch Program",
             "type": "node",
             "request": "launch",
-            "name": "Launch Program",
-            "program": "${workspaceRoot}/scrape_cmc.js"
+            "cwd": "${workspaceRoot}",
+            "program": "${file}",
+            // "protocol": "inspector"
         },
         {
+            "name": "Attach to Port",
             "type": "node",
             "request": "attach",
-            "name": "Attach to Port",
-            "address": "localhost",
-            "port": 5858
+            "port": 5858,
+            "restart": true,
+            // "address": "localhost"
         }
     ]
 }
