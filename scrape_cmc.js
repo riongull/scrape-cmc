@@ -1,47 +1,38 @@
-var fs = require('fs');
-var express = require('express');
-var request = require('request');
-var cheerio = require('cheerio');
-var cheers = require('cheers');
-var json2csv = require('json2csv');
+let fs = require('fs');
+let axios = require('axios');
+let cheerio = require('cheerio');
+let cheers = require('cheers');
+let Baby = require('babyparse');
 
-var Baby = require('babyparse');
+const getHistoryLinks = (url) => {  
+    return axios(url).then((response) => {
+        let html = response.data;
+        let $ = cheerio.load(html, {ignoreWhitespace: true});
+        let link = "";
+        let links = [];
+        let historyLink = false;
+        let historyLinks = [];
 
+        $('a').each(function(i, elem) {
+            link = $(this).attr('href');
+            historyLink = (link && link.length === 21) ? true : false
+            if (historyLink) { historyLinks.push('https://coinmarketcap.com'+link) }
+        });
 
-// scrape history page for each available weekly data link
-var url = 'https://coinmarketcap.com/historical/';
-var historyLinks = [];
-cmcData = {};
+        return historyLinks;
 
-request(url, null , function(error, response, html) {
+    }).catch((error) => console.log(error));
+};
 
-    var $ = cheerio.load(html, {ignoreWhitespace: true});
-    var link = "";
-    var links = [];
-    var historyLink = false;
+const getData = (historyLinks) => {
 
-    $('a').each(function(i, elem) {
-        link = $(this).attr('href');
-        historyLink = (link && link.length === 21) ? true : false
-        if (historyLink) { historyLinks.push('https://coinmarketcap.com'+link) }
-    });
-});
-
-// scrape individual pages
-var app = express();
-app.get('/', function(req, res) {
-
-    // for testing...
-    historyLinks = historyLinks.slice(0,2);
+    historyLinks = historyLinks.slice(0,2);  // trim load for testing
+    console.log('historyLinks:', historyLinks);
     
-    var config = {
+    let config = {
         url: historyLinks,
         blockSelector: "tr",
         scrape: {
-            // rank: {
-            //     selector: 'td.text-center.sorting_1',
-            //     extract: "text"
-            // },  // giving "" for some reason
             currency: {
                 selector: "td.no-wrap.currency-name > a",
                 extract: "text"
@@ -81,15 +72,14 @@ app.get('/', function(req, res) {
         }
     };
 
-    cheers.scrape(config).then(function(results) {
-        
+    return cheers.scrape(config).then((results) => {
+               
         cmcData = results.reduce((data, arr, i) => {
             date = `${historyLinks[i].slice(-9, -1)}`;
             data[date] = arr.splice(1, arr.length);
             return data
         }, {});
-
-
+        
         Object.keys(cmcData).map((i) => {
             cmcData[i].map((o) => {
                 Object.keys(o).map((i) => {
@@ -98,38 +88,68 @@ app.get('/', function(req, res) {
             });
         });
 
-        // write out to console and browser
-        console.log('fields', Object.keys(config.scrape));
-        console.log('historyLinks', historyLinks);
-        console.log('historyLinks[1]', historyLinks[1]);
-        console.log('cmcData:', cmcData)
-        console.log('cmcData["20130428"]:', cmcData['20130428']);
-        console.log('cmcData[first element]', cmcData[Object.keys(cmcData)[0]]);
-        console.log('JSON data', JSON.stringify(cmcData[Object.keys(cmcData)[0]],null,2));
+        return cmcData
 
-        // write out to csv file
-        // var csv = json2csv({ 
-        //     fields: Object.keys(config.scrape),
-        //     data: JSON.stringify(cmcData[Object.keys(cmcData)[0]])
-        // });
+    }).catch((error) => console.error(error));
+};
 
-        // json2csv not working, use babyparse instead
-        csv = Baby.unparse(JSON.stringify(cmcData[Object.keys(cmcData)[0]]));
+const outputData = (cmcData) => {
+    console.log(cmcData);
 
-        fs.writeFile('scrape_cmc.csv', csv, function(err) {
-            if (err) throw err;
-            console.log('file saved');
-        });
+    // let JSONData = JSON.stringify(cmcData, null, 2);
+    // console.log('JSONData', JSONData);
 
-    // catch errors in express server
-    }).catch((error) => {
-        console.error(error);
+    const headers = Object.keys(cmcData[Object.keys(cmcData)[0]][0]);
+    console.log('headers:', headers);
+
+    const getCsvLine = (currency = 'Litecoin', day = '20130505') => {
+        return cmcData[day].find((coin) => coin.currency === currency)
+    };
+
+    csvData = [];
+    
+    Object.keys(cmcData).forEach(day => {    
+        // JSONcsvLine = getCsvLine();
+        csvData.push(getCsvLine('Litecoin', day)[headers[4]]);
     });
-    
-    res.send(cmcData);
-    
-});
 
-app.listen('3000');
-console.log('cheers is listening on port 3000');
-exports = module.exports = app;
+    console.log(csvData)
+
+    
+    // let dataString = '';
+    // reducedData = Object.keys(cmcData).reduce((acc, date, i) => {
+    //     console.log('i:', i);
+    //     console.log('acc:', acc);
+    //     console.log('date:', date);
+    //     console.log('price:', cmcData[Object.keys(cmcData)[i]].find((coin) => coin.currency === 'Litecoin'));
+    //     // line = date + Baby.unparse(JSON.stringify(cmcData[Object.keys(cmcData)[i]]))
+    //     // return acc.concat(dailyData,'\n');
+    //     return acc.concat(date,',');
+    //     // console.log(cmcData[Object.keys(cmcData)[i]].find((coin) => coin.currency === 'Litecoin'));
+    // },'');
+
+    // console.log(reducedData);
+
+    let csv = Baby.unparse(JSON.stringify(cmcData[Object.keys(cmcData)[0]]));
+    // let csv = Baby.unparse(JSON.stringify(JSONData[Object.keys(JSONData)[0]])); 
+
+    // fs.writeFile('scrape_cmc.csv', csv, (err) => {
+    //     if (err) throw err;
+    //     console.log('file saved');
+    // });
+
+    return csv;
+};
+
+const scrapeSite = async (url) => {
+    try {
+        const historyLinks = await getHistoryLinks(url);
+        const cmcData = await getData(historyLinks);
+        const csv = outputData(cmcData); 
+        // console.log('csv:\n', csv);
+    } catch (error) {
+        console.log(error);
+    }
+};
+
+scrapeSite('https://coinmarketcap.com/historical/');
