@@ -6,7 +6,6 @@ This tool scrapes coinmarketcap.com's historical (weekly) data
 2. `cd scrape-cmc`
 3. `yarn install` or `npm install`
 4. `nodemon scrape_cmc.js`
-5. open `http://localhost:3000/` in a web browser (reload to get data)
 
 ### Notes
 This scraper isn't really meant for public consumption; this is just a side project and there are bugs.
